@@ -1,0 +1,235 @@
+*****************ARQUIVO SECUNDARIO****************
+Arquivo vazio!
+**********************LISTAR**********************
+AGLS211121
+ALEXANDRE O GRANDE
+M
+06/07/1998
+(61) 43548-3914
+GOL
+GLS-5833
+21/11/19
+21:12
+228.16
+2
+JUNDIAI, LORENA, OSASCO, RIO DE JANEIRO
+*****************ARQUIVO SECUNDARIO****************
+AGLS211121 ALEXANDRE O GRANDE
+**********************BUSCAR**********************
+Registro(s) nao encontrado!
+**********************BUSCAR**********************
+ACII220519
+ALEXANDRE O MAIS OU MENOS
+F
+11/12/1995
+(93) 55234-5392
+FIT
+CII-3494
+22/05/19
+19:14
+078.08
+2
+JUNDIAI, OSASCO, RIO DE JANEIRO
+**********************ARQUIVO*********************
+ALEXANDRE O GRANDE@M@06/07/1998@(61) 43548-3914@GOL@GLS-5833@JUNDIAI|LORENA|OSASCO|RIO DE JANEIRO@21/11/19@21:12@228.16@2@######################################################################################################################################PABLO PICASSO@F@04/07/1989@(92) 34872-0909@FIT@IKB-7821@COTIA|LORENA@21/05/19@08:23@144.37@1@###################################################################################################################################################################ALEXANDRE O MAIS OU MENOS@F@11/12/1995@(93) 55234-5392@FIT@CII-3494@JUNDIAI|OSASCO|RIO DE JANEIRO@22/05/19@19:14@078.08@2@######################################################################################################################################
+**********************BUSCAR**********************
+PIKB210508
+PABLO PICASSO
+F
+04/07/1989
+(92) 34872-0909
+FIT
+IKB-7821
+21/05/19
+08:23
+144.37
+1
+COTIA, LORENA
+**********************ARQUIVO*********************
+ALEXANDRE O GRANDE@M@06/07/1998@(61) 43548-3914@GOL@GLS-5833@JUNDIAI|LORENA|OSASCO|RIO DE JANEIRO@21/11/19@21:12@228.16@2@######################################################################################################################################PABLO PICASSO@F@04/07/1989@(92) 34872-0909@FIT@IKB-7821@COTIA|LORENA@21/05/19@08:23@144.37@1@###################################################################################################################################################################ALEXANDRE O MAIS OU MENOS@F@11/12/1995@(93) 55234-5392@FIT@CII-3494@JUNDIAI|OSASCO|RIO DE JANEIRO@22/05/19@19:14@078.08@2@######################################################################################################################################LETICIA FERREIRA DA SILVA@M@24/06/1990@(13) 74371-0126@FUSCA@HKK-3138@COTIA|RIO DE JANEIRO|SAO JOSE DOS CAMPOS|SOROCABA@02/10/19@15:02@093.76@1@################################################################################################################
+*****************ARQUIVO SECUNDARIO****************
+AGLS211121 ALEXANDRE O GRANDE
+ACII220519 ALEXANDRE O MAIS OU MENOS
+AEYJ060504 ALEXANDRE O MAIS OU MENOS
+LHKK021015 LETICIA FERREIRA DA SILVA
+PIKB210508 PABLO PICASSO
+**********************ARQUIVO*********************
+ALEXANDRE O GRANDE@M@06/07/1998@(61) 43548-3914@GOL@GLS-5833@JUNDIAI|LORENA|OSASCO|RIO DE JANEIRO@21/11/19@21:12@228.16@2@######################################################################################################################################PABLO PICASSO@F@04/07/1989@(92) 34872-0909@FIT@IKB-7821@COTIA|LORENA@21/05/19@08:23@144.37@1@###################################################################################################################################################################ALEXANDRE O MAIS OU MENOS@F@11/12/1995@(93) 55234-5392@FIT@CII-3494@JUNDIAI|OSASCO|RIO DE JANEIRO@22/05/19@19:14@078.08@2@######################################################################################################################################LETICIA FERREIRA DA SILVA@M@24/06/1990@(13) 74371-0126@FUSCA@HKK-3138@COTIA|RIO DE JANEIRO|SAO JOSE DOS CAMPOS|SOROCABA@02/10/19@15:02@093.76@1@################################################################################################################ALEXANDRE O MAIS OU MENOS@M@24/09/1994@(11) 19687-5837@FOX@EYJ-0619@COTIA|JUNDIAI|OSASCO|SAO JOSE DOS CAMPOS|SAO PAULO|SAO ROQUE|SOROCABA@06/05/19@04:19@054.62@2@##############################################################################################LETICIA BASTOS@M@09/01/1992@(91) 44131-0767@CIVIC@JTU-3609@COTIA|JUNDIAI|LORENA|RIO DE JANEIRO@01/03/19@15:40@082.62@3@#########################################################################################################################################
+*****************ARQUIVO SECUNDARIO****************
+AGLS211121 ALEXANDRE O GRANDE
+ACII220519 ALEXANDRE O MAIS OU MENOS
+AEYJ060504 ALEXANDRE O MAIS OU MENOS
+LJTU010315 LETICIA BASTOS
+LHKK021015 LETICIA FERREIRA DA SILVA
+PIKB210508 PABLO PICASSO
+**********************LISTAR**********************
+ACII220519
+ALEXANDRE O MAIS OU MENOS
+F
+11/12/1995
+(93) 55234-5392
+FIT
+CII-3494
+22/05/19
+19:14
+078.08
+2
+JUNDIAI, OSASCO, RIO DE JANEIRO
+
+AEYJ060504
+ALEXANDRE O MAIS OU MENOS
+M
+24/09/1994
+(11) 19687-5837
+FOX
+EYJ-0619
+06/05/19
+04:19
+054.62
+2
+COTIA, JUNDIAI, OSASCO, SAO JOSE DOS CAMPOS, SAO PAULO, SAO ROQUE, SOROCABA
+
+AGLS211121
+ALEXANDRE O GRANDE
+M
+06/07/1998
+(61) 43548-3914
+GOL
+GLS-5833
+21/11/19
+21:12
+228.16
+2
+JUNDIAI, LORENA, OSASCO, RIO DE JANEIRO
+
+LHKK021015
+LETICIA FERREIRA DA SILVA
+M
+24/06/1990
+(13) 74371-0126
+FUSCA
+HKK-3138
+02/10/19
+15:02
+093.76
+1
+COTIA, RIO DE JANEIRO, SAO JOSE DOS CAMPOS, SOROCABA
+
+LJTU010315
+LETICIA BASTOS
+M
+09/01/1992
+(91) 44131-0767
+CIVIC
+JTU-3609
+01/03/19
+15:40
+082.62
+3
+COTIA, JUNDIAI, LORENA, RIO DE JANEIRO
+
+PIKB210508
+PABLO PICASSO
+F
+04/07/1989
+(92) 34872-0909
+FIT
+IKB-7821
+21/05/19
+08:23
+144.37
+1
+COTIA, LORENA
+**********************LISTAR**********************
+ACII220519
+ALEXANDRE O MAIS OU MENOS
+F
+11/12/1995
+(93) 55234-5392
+FIT
+CII-3494
+22/05/19
+19:14
+078.08
+2
+JUNDIAI, OSASCO, RIO DE JANEIRO
+
+AEYJ060504
+ALEXANDRE O MAIS OU MENOS
+M
+24/09/1994
+(11) 19687-5837
+FOX
+EYJ-0619
+06/05/19
+04:19
+054.62
+2
+COTIA, JUNDIAI, OSASCO, SAO JOSE DOS CAMPOS, SAO PAULO, SAO ROQUE, SOROCABA
+
+AGLS211121
+ALEXANDRE O GRANDE
+M
+06/07/1998
+(61) 43548-3914
+GOL
+GLS-5833
+21/11/19
+21:12
+228.16
+2
+JUNDIAI, LORENA, OSASCO, RIO DE JANEIRO
+
+EBXJ090615
+EDUARDO MOTTA
+M
+13/02/1998
+(58) 73312-1645
+CELTA
+BXJ-9911
+09/06/19
+15:42
+020.69
+2
+COTIA, JUNDIAI, LORENA, OSASCO, SAO JOSE DOS CAMPOS, SAO PAULO, SAO ROQUE, SOROCABA, TAUBATE
+
+LHKK021015
+LETICIA FERREIRA DA SILVA
+M
+24/06/1990
+(13) 74371-0126
+FUSCA
+HKK-3138
+02/10/19
+15:02
+093.76
+1
+COTIA, RIO DE JANEIRO, SAO JOSE DOS CAMPOS, SOROCABA
+
+LJTU010315
+LETICIA BASTOS
+M
+09/01/1992
+(91) 44131-0767
+CIVIC
+JTU-3609
+01/03/19
+15:40
+082.62
+3
+COTIA, JUNDIAI, LORENA, RIO DE JANEIRO
+
+PIKB210508
+PABLO PICASSO
+F
+04/07/1989
+(92) 34872-0909
+FIT
+IKB-7821
+21/05/19
+08:23
+144.37
+1
+COTIA, LORENA
+**********************ARQUIVO*********************
+ALEXANDRE O GRANDE@M@06/07/1998@(61) 43548-3914@GOL@GLS-5833@JUNDIAI|LORENA|OSASCO|RIO DE JANEIRO@21/11/19@21:12@228.16@2@######################################################################################################################################PABLO PICASSO@F@04/07/1989@(92) 34872-0909@FIT@IKB-7821@COTIA|LORENA@21/05/19@08:23@144.37@1@###################################################################################################################################################################ALEXANDRE O MAIS OU MENOS@F@11/12/1995@(93) 55234-5392@FIT@CII-3494@JUNDIAI|OSASCO|RIO DE JANEIRO@22/05/19@19:14@078.08@2@######################################################################################################################################LETICIA FERREIRA DA SILVA@M@24/06/1990@(13) 74371-0126@FUSCA@HKK-3138@COTIA|RIO DE JANEIRO|SAO JOSE DOS CAMPOS|SOROCABA@02/10/19@15:02@093.76@1@################################################################################################################ALEXANDRE O MAIS OU MENOS@M@24/09/1994@(11) 19687-5837@FOX@EYJ-0619@COTIA|JUNDIAI|OSASCO|SAO JOSE DOS CAMPOS|SAO PAULO|SAO ROQUE|SOROCABA@06/05/19@04:19@054.62@2@##############################################################################################LETICIA BASTOS@M@09/01/1992@(91) 44131-0767@CIVIC@JTU-3609@COTIA|JUNDIAI|LORENA|RIO DE JANEIRO@01/03/19@15:40@082.62@3@#########################################################################################################################################EDUARDO MOTTA@M@13/02/1998@(58) 73312-1645@CELTA@BXJ-9911@COTIA|JUNDIAI|LORENA|OSASCO|SAO JOSE DOS CAMPOS|SAO PAULO|SAO ROQUE|SOROCABA|TAUBATE@09/06/19@15:42@020.69@2@#########################################################################################
