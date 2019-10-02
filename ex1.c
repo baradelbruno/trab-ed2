@@ -233,6 +233,12 @@ void listarTrajeto(Ip* indice_primario, Ir* iroute, int nregistros, int ntraj);
 /* LISTAR POR DATA E HORA*/
 void listarDataHora(Ip* indice_primario, Isd* idate, Ist* itime, int nregistros);
 
+/* BUSCAR PELA LOCALIDADE E DATA */
+void buscarLocalidadeData(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros);
+
+/* LISTAR POR LOCALIDADE, DATA E HORA */
+void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros);
+
 /* ==========================================================================
  * ============================ FUNÇÃO PRINCIPAL ============================
  * =============================== NÃO ALTERAR ============================== */
@@ -347,6 +353,7 @@ int main()
 					buscarLocalidade(iprimary, iroute, nregistros, ntraj);
 					break;
 				case 4:
+					buscarLocalidadeData(iprimary, iroute, idate, itime, ntraj, nregistros);
 					break;
 			}
 			break;
@@ -370,6 +377,9 @@ int main()
 				case 4: 
 					listarDataHora(iprimary, idate, itime, nregistros);
 					break;
+				case 5:
+					listarLocalidadeDataHora(iprimary, iroute, idate, itime, ntraj, nregistros);
+				break;
 			}
 			break;
 
@@ -1121,5 +1131,93 @@ void listarDataHora(Ip* indice_primario, Isd* idate, Ist* itime, int nregistros)
 
 		if(i < nregistros-1)
 			printf("\n");
+	}
+}
+
+void buscarLocalidadeData(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros){
+	// Ip *aux_rrn, *aux_rrn2;
+	// Ir *copia, *string, *aux;
+	// Isd *aux2, *data;
+	// int flag[ntraj], primeira = 1;
+
+	// for(int i = 0; i < ntraj; i++)
+	// 	flag[i] = 0;
+
+	// aux = (Ir *) malloc (sizeof(char));
+	// aux2 = (Isd *) calloc (9, sizeof(char));
+	// string = (Ir *) malloc (sizeof(char));
+	// copia = (Ir *) malloc (sizeof(char));
+	// data = (Isd *) calloc (9, sizeof(char));
+
+	// getchar();scanf("%[^\n]s", string->trajeto);
+	// getchar();scanf("%[^\n]s", data->data);
+	
+	// aux = (Ir *) bsearch(string->trajeto, iroute, nregistros, sizeof(Ir) , comparaTrajeto);
+	// printf("1\n");
+	// if(aux == NULL)
+	// 	printf(REGISTRO_N_ENCONTRADO);
+	// else{
+	// 	aux_rrn = (Ip *) bsearch(aux->lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
+	// 	if(aux_rrn == NULL)
+	// 		printf(REGISTRO_N_ENCONTRADO);
+	// 	printf("2\n");
+	// }
+	// memcpy(copia, aux, sizeof(Ir));
+	// printf("%s\n", copia->lista->pk);
+	// printf("3\n");		
+	// while(copia->lista != NULL){
+	// 	aux2 = (Isd *) bsearch(data, idate, nregistros, sizeof(Isd), comparadata);
+	// 	printf("4\n");
+	// 	if(aux2 == NULL)
+	// 		printf(REGISTRO_N_ENCONTRADO);
+	// 	//printf("%s\n", aux2->pk);
+	// 	else if(strcmp(copia->lista->pk, aux2->pk) == 0){
+	// 		printf("5\n");
+	// 		exibir_registro(aux_rrn->rrn);
+
+	// 	printf("podepa mano\n");
+	// 	}
+	// 	copia->lista = copia->lista->prox;
+	// 	printf("6\n");
+	// }
+}
+
+void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros){
+	Ip *aux_rrn;
+	Ir *copia;
+	int flag[nregistros], primeira = 1;
+
+	for(int i = 0; i < nregistros; i++)
+		flag[i] = 0;
+
+	copia = (Ir *) malloc (sizeof(char));
+	
+	for (int j = 0; j < ntraj; j++){
+		copia[j].lista = iroute[j].lista;
+		
+		while(copia[j].lista != NULL){
+			aux_rrn = (Ip *) bsearch(copia[j].lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
+
+			if (aux_rrn->rrn != -1){
+					aux_rrn = (Ip *) bsearch(idate[aux_rrn->rrn].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
+
+					if(idate[aux_rrn->rrn+1].data != NULL)
+						if(strcmp(idate[aux_rrn->rrn].data, idate[aux_rrn->rrn+1].data) == 0)
+							for (int i = aux_rrn->rrn; i < nregistros; i++){
+								aux_rrn = (Ip *) bsearch(itime[i].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
+								if(aux_rrn != NULL){
+									exibir_registro(aux_rrn->rrn);
+								}
+							}
+					if(aux_rrn != NULL)
+						exibir_registro(aux_rrn->rrn);
+					else
+						printf(REGISTRO_N_ENCONTRADO);
+
+					if(j != ntraj)
+						printf("\n");
+			}
+			copia[j].lista = copia[j].lista->prox;
+		}
 	}
 }
