@@ -110,6 +110,12 @@ typedef struct reverse_index
 	ll *lista;
 } Ir;
 
+/*struct para vetor de strings */
+typedef struct stringvector
+{
+	char string[TAM_NOME];
+} sv;
+
 /* GLOBAL: ARQUIVO DE DADOS */
 char ARQUIVO[TAM_ARQUIVO];
 
@@ -139,6 +145,7 @@ void criar_iprimary(Ip *indice_primario, int *nregistros);
 void criar_idriver(Is *idriver, int *nregistros);
 void criar_idate(Isd *idate, int *nregistros);
 void criar_itime(Ist *itime, int *nregistros);
+void criar_iroute(Ir* iroute, int *nregistros, int *ntraj);
 
 
 /* INSERE NO INDICE SECUNDARIO IDRIVER */
@@ -237,7 +244,31 @@ void listarDataHora(Ip* indice_primario, Isd* idate, Ist* itime, int nregistros)
 void buscarLocalidadeData(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros);
 
 /* LISTAR POR LOCALIDADE, DATA E HORA */
-void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros);
+void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros, int nRemovidos);
+
+/* COMPARA PK ENTRE IP E ISD */
+int comparapk2(const void *a, const void *b);
+
+/* ALTERAR O NUMERO DE VAGAS */
+int alterar(Ip* indice_primario, int nregistros);
+
+/* FUNÇÃO AUXILIAR PARA A ALTERAÇÃO DAS VAGAS */
+int checaNovaVaga(char *vagas);
+
+/* REMOVER */
+int remover(Ip *indice_primario, int nregistros, int *nRemovidos);
+
+/* COMPARAR CADA UM DOS NOMES DO MOTORISTA */
+int comparaNomeaNome(Is x, Is y);
+
+/* LIBERAR ESPAÇO NO ARQUIVO */
+void liberarEspaco(int *nregistros, int *ntraj, Ip* indice_primario, Ir* iroute, Is* idriver, Isd* idate, Ist* itime);
+
+/* RECRIAR OS INDICES APÓS LIBERAR MEMÓRIA */
+void recriaIndices(Ip* indice_primario, Is* idriver, Isd* idate, Ist* itime, int * nregistros, Ir* iroute, int *ntraj);
+
+/* LIBERA A MEMÓRIA DE IROUTE */
+void liberar_iroute(Ir* iroute, int *ntraj);
 
 /* ==========================================================================
  * ============================ FUNÇÃO PRINCIPAL ============================
@@ -245,7 +276,7 @@ void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* 
 int main()
 {
 	/* Verifica se há arquivo de dados */
-	int carregarArquivo = 0, nregistros = 0, ntraj = 0;
+	int carregarArquivo = 0, nregistros = 0, ntraj = 0, nRemovidos = 0;
 	scanf("%d%*c", &carregarArquivo); /* 1 (sim) | 0 (nao) */
 	if (carregarArquivo)
 		nregistros = carregar_arquivo();
@@ -316,10 +347,10 @@ int main()
 			/* alterar */ 
 			printf(INICIO_ALTERACAO);
 
-		/*	if(alterar([args]))
+			if(alterar(iprimary, nregistros))
 				printf(SUCESSO);
 			else
-				printf(FALHA); */
+				printf(FALHA);
 
 			break;
 
@@ -327,10 +358,10 @@ int main()
 			/* excluir */
 			printf(INICIO_EXCLUSAO);
 
-		/*	if(remover([args]))
+			if(remover(iprimary, nregistros, &nRemovidos))
 				printf(SUCESSO);
 			else
-				printf(FALHA); */
+				printf(FALHA); 
 
 			break;
 
@@ -366,19 +397,24 @@ int main()
 
 			switch(opcao){
 				case 1:
+					//printf("LISTAR PK\n");
 					listarPk(iprimary, nregistros);
 					break;
 				case 2:
+					//printf("LISTAR TRAJETO\n");
 					listarTrajeto(iprimary, iroute, nregistros, ntraj);
 					break;
 				case 3:
+					//printf("LISTAR DRIVER\n");
 					listarDriver(iprimary, idriver, nregistros);
 					break; 
 				case 4: 
+					//printf("LISTAR DATA E HORA\n");
 					listarDataHora(iprimary, idate, itime, nregistros);
 					break;
 				case 5:
-					listarLocalidadeDataHora(iprimary, iroute, idate, itime, ntraj, nregistros);
+					//printf("LISTAR LOCALIDADE DATA HORA\n");
+					listarLocalidadeDataHora(iprimary, iroute, idate, itime, ntraj, nregistros, nRemovidos);
 				break;
 			}
 			break;
@@ -386,8 +422,7 @@ int main()
 		case 6:
 			/*	libera espaço */
 
-			/* <<< COLOQUE AQUI A CHAMADA PARA A FUNCAO LIBERAR ESPACO >>> */
-
+			liberarEspaco(&nregistros, &ntraj, iprimary, iroute, idriver, idate, itime);
 			break;
 
 		case 7:
@@ -490,6 +525,22 @@ void criar_itime(Ist *itime, int *nregistros){
 				itime[i].pk[j] = recupera.pk[j];
 			}
 			strcpy(itime[i].hora, recupera.hora);
+		}
+	}
+}
+
+void criar_iroute(Ir* iroute, int *nregistros, int *ntraj){
+	Carona recupera;
+
+	if(*nregistros == 0)
+		return;
+
+	else{
+		criarLista(iroute);
+
+		for(int i=0; i< *nregistros; i++){
+			recupera = recuperar_registro(i);
+			inserirIndiceSecIroute(*nregistros, &recupera, iroute, ntraj);
 		}
 	}
 }
@@ -678,8 +729,6 @@ void inserir(Ip *iprimary, Is *idriver, Isd *idate, Ist *itime, Ir *iroute, int 
     }
 	else
 		printf(ERRO_PK_REPETIDA, novaCarona.pk);
-
-	//printf("Valor de nregistros: %d\n", *nregistros);
 }
 
 void inserirNoArquivo(Carona *novaCarona, int *nregistros){
@@ -743,6 +792,14 @@ int comparapk(const void *a, const void *b){
 	return strcmp(x->pk , y->pk);
 }
 
+int comparapk2(const void *a, const void *b){
+	char x[11];
+	strcpy(x, a);
+	const Isd *y = b;
+
+	return strcmp(x, y->pk);
+}
+
 void inserirIndiceSecIdriver(int nregistros, Carona *novaCarona, Is *idriver){
 	for (int i=0; i < 10; i++){
 		idriver[nregistros].pk[i] = novaCarona->pk[i];
@@ -778,10 +835,63 @@ void inserirIndiceSecItime(int nregistros, Carona *novaCarona, Ist *itime){
 }
 
 int comparanome(const void *a, const void *b){
-	const Is *x = a;
-	const Is *y = b;
+	Is *x = (Is* )a;
+	Is *y = (Is*) b;
+	int t;
+	t = comparaNomeaNome(*x, *y);
+	if(t == 0)
+		return strcmp(x->pk, y->pk);
+	else
+		return t;
+}
 
-	return strcmp(x->nome, y->nome);
+int comparaNomeaNome(Is x, Is y){
+	char *traj, *traj2, copiax[TAM_NOME], copiay[TAM_NOME];
+	int i = 0, j = 0, contador;
+	sv *vetor, *vetor2;
+
+	vetor = (sv *) malloc(sizeof(sv)*10);
+	vetor2 = (sv *) malloc(sizeof(sv)*10);
+
+	strcpy(copiax, x.nome);
+	strcpy(copiay, y.nome);
+
+	traj = strtok(copiax, " ");
+
+	while(traj != NULL){
+		strcpy(vetor[i].string, traj);
+		//printf("%s\n", vetor[i].string);
+		i++;
+		traj = strtok(NULL, " \n\t");
+	}
+	traj2 = strtok(copiay, " ");
+
+	while(traj2!= NULL){
+		strcpy(vetor2[j].string, traj2);
+		j++;
+		traj2 = strtok(NULL, " \n\t");
+	}
+	if(i > j)
+		contador = i;
+	else 
+		contador = j;
+
+	for(int k = 0; k < contador; k++){
+		//printf("VETOR[K]: %s\nVETOR2[K]: %s\n", vetor[k].string, vetor2[k].string);
+		if(strcmp(vetor[k].string, vetor2[k].string) < 0){
+			free(vetor);
+			free(vetor2);
+			return -1;
+		}
+		else if(strcmp(vetor[k].string, vetor2[k].string) > 1){
+			free(vetor);
+			free(vetor2);
+			return 1;
+		}
+	}
+	free(vetor);
+	free(vetor2);
+	return 0;
 }
 
 void exibir_iprimary(Ip *indice_primario, int nregistros) {
@@ -822,7 +932,7 @@ void buscarData(Ip *indice_primario, Isd *idate, int nregistros){
 		 for (int i = 0; i < nregistros; i++){
 		 	if (strcmp(aux->pk, idate[i].pk) == 0){
 		 		aux_rrn = (Ip *) bsearch(idate[i].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-		 		if (aux_rrn->rrn != -1){
+		 		if (aux_rrn != NULL){
 		 			exibir_registro(aux_rrn->rrn);
 		 		}
 		 		else
@@ -864,24 +974,33 @@ int comparadata(const void *a, const void *b){
 }
 
 void listarPk(Ip *iprimary, int nregistros){    
-    for(int i = 0; i < nregistros; i++)
-    {
-        if(exibir_registro(iprimary[i].rrn))
-            if(i < nregistros - 1)
-                printf("\n");
-    }
+    
+	if(nregistros == 0)
+		printf(REGISTRO_N_ENCONTRADO);
+	else{
+		for(int i = 0; i < nregistros; i++)
+		{
+			if(exibir_registro(iprimary[i].rrn))
+				if(i < nregistros - 1)
+					printf("\n");
+		}
+	}
 }
 
 void listarDriver(Ip *indice_primario, Is *idriver, int nregistros){
 	Ip *aux;
+	Is *aux1;
 	
-	for(int i = 0; i < nregistros; i++)
-    {
+	for(int i = 0; i < nregistros; i++){
 		aux = (Ip *) bsearch(idriver[i].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-        if(exibir_registro(indice_primario[i].rrn))
-            if(i < nregistros - 1)
-                printf("\n");
-    }
+		if(aux != NULL){
+			exibir_registro(aux->rrn);
+			if(i < nregistros - 1)
+				printf("\n");
+		}
+		else
+			printf(REGISTRO_N_ENCONTRADO);
+	}
 }
 
 int comparahora(const void* a, const void *b){
@@ -960,13 +1079,10 @@ void inserirIndiceSecIroute(int nregistros, Carona *novaCarona, Ir *iroute, int 
 	char* traj, trajeto[TAM_TRAJETO];
 	int i = 0;
 	Ir *aux;
-
 	aux = (Ir *) malloc (sizeof(char));
 
 	strcpy(trajeto, novaCarona->trajeto);
-
 	traj = strtok(trajeto, "|");
-
 	while (traj != NULL){
 		aux = (Ir *) bsearch(traj, iroute, *ntraj, sizeof(Ir) , comparaTrajeto);
 		
@@ -983,7 +1099,7 @@ void inserirIndiceSecIroute(int nregistros, Carona *novaCarona, Ir *iroute, int 
 			}
 		}
 		traj = strtok(NULL, "|");
-	}		
+	}	
 }
 
 int comparaTrajeto(const void *a, const void *b){
@@ -1001,12 +1117,11 @@ void buscarLocalidade(Ip* indice_primario, Ir * iroute, int nregistros, int ntra
 	for(int i = 0; i < ntraj; i++)
 		flag[i] = 0;
 
-	aux2 = (Ir *) malloc (sizeof(char));
-	string = (Ir *) malloc (sizeof(char));
-	copia = (Ir *) malloc (sizeof(char));
+	string = (Ir *) malloc (sizeof(Ir) * MAX_REGISTROS);
+	copia = (Ir *) malloc (sizeof(Ir) * MAX_REGISTROS);
 
 	getchar();scanf("%[^\n]s", string->trajeto);
-	
+
 	aux2 = (Ir *) bsearch(string->trajeto, iroute, ntraj, sizeof(Ir) , comparaTrajeto);
 	if(aux2 == NULL){
 		printf(REGISTRO_N_ENCONTRADO);
@@ -1014,16 +1129,12 @@ void buscarLocalidade(Ip* indice_primario, Ir * iroute, int nregistros, int ntra
 	else{
 		memcpy(copia, aux2, sizeof(Ir));
 		while(copia->lista != NULL){
-			//printf("aux2->lista->pk: %s\n", aux2->lista->pk);
 			aux_rrn = (Ip *) bsearch(copia->lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-			
-			if (aux_rrn->rrn != -1){
+			if (aux_rrn != NULL){
 				exibir_registro(aux_rrn->rrn);
 
 				if(copia->lista->prox != NULL)
 					printf("\n");
-
-				//removerLista(&aux2->lista, aux2->lista->pk);
 			}
 			else
 				printf(REGISTRO_N_ENCONTRADO);
@@ -1031,6 +1142,8 @@ void buscarLocalidade(Ip* indice_primario, Ir * iroute, int nregistros, int ntra
 			copia->lista = copia->lista->prox;
 		}
 	}
+	free(string);
+	free(copia);
 }
 
 void removerLista(ll **lista, char *pk){
@@ -1077,26 +1190,33 @@ void removerLista(ll **lista, char *pk){
 void listarTrajeto(Ip* indice_primario, Ir* iroute, int nregistros, int ntraj){
 	Ip *aux_rrn;
 	Ir *copia;
-	int flag[nregistros], primeira = 1;
-
+	int flag[nregistros], primeira = 1, k = 0, t = 0;
 	for(int i = 0; i < nregistros; i++)
 		flag[i] = 0;
 
 	copia = (Ir *) malloc (sizeof(char));
-	
+
+	for(int i = 0; i < ntraj; i++){
+		copia[i].lista = iroute[i].lista;
+		while(copia[i].lista != NULL){
+			k++;
+			copia[i].lista = copia[i].lista->prox;
+		}
+	}
+
 	for (int j = 0; j < ntraj; j++){
 		copia[j].lista = iroute[j].lista;
 		
 		while(copia[j].lista != NULL){
 			aux_rrn = (Ip *) bsearch(copia[j].lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
 
-			if (aux_rrn->rrn != -1){
+			if (aux_rrn != NULL){
 				exibir_registro(aux_rrn->rrn);
+			
+			    t++;
 
-				if(copia[j].lista->prox != NULL)
-					printf("\n");
-
-				//removerLista(&copia[j].lista, copia[j].lista->pk);
+			    if(t <= k-1)
+				    printf("\n");
 			}
 			else
 				printf(REGISTRO_N_ENCONTRADO);
@@ -1111,6 +1231,11 @@ void listarDataHora(Ip* indice_primario, Isd* idate, Ist* itime, int nregistros)
 	int j = 0, k = 0, primeira = 1;
 	int flag[nregistros];
 
+	if(nregistros == 0){
+		printf(REGISTRO_N_ENCONTRADO);
+		return;
+	}
+
 	for(int i = 0; i < nregistros; i++)
 		flag[i] = 0;
 
@@ -1123,6 +1248,9 @@ void listarDataHora(Ip* indice_primario, Isd* idate, Ist* itime, int nregistros)
 					aux_rrn = (Ip *) bsearch(itime[j].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
 					if(aux_rrn != NULL)
 						exibir_registro(aux_rrn->rrn);
+					else
+						printf(REGISTRO_N_ENCONTRADO);
+					
 				}
 		if(aux_rrn != NULL)
 			exibir_registro(aux_rrn->rrn);
@@ -1135,89 +1263,266 @@ void listarDataHora(Ip* indice_primario, Isd* idate, Ist* itime, int nregistros)
 }
 
 void buscarLocalidadeData(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros){
-	// Ip *aux_rrn, *aux_rrn2;
-	// Ir *copia, *string, *aux;
-	// Isd *aux2, *data;
-	// int flag[ntraj], primeira = 1;
+	Ip *aux_rrn;
+	Isd* data, *aux_data;
+	Ir *copia, *aux2, *string;
+	int flag[ntraj], primeira = 1, ultima = 0, i = 0;
 
-	// for(int i = 0; i < ntraj; i++)
-	// 	flag[i] = 0;
+	for(int i = 0; i < ntraj; i++)
+		flag[i] = 0;
 
-	// aux = (Ir *) malloc (sizeof(char));
-	// aux2 = (Isd *) calloc (9, sizeof(char));
-	// string = (Ir *) malloc (sizeof(char));
-	// copia = (Ir *) malloc (sizeof(char));
-	// data = (Isd *) calloc (9, sizeof(char));
+	data = (Isd *) malloc(sizeof(char));
+	aux_data = (Isd *) malloc(sizeof(char));
+	aux2 = (Ir *) malloc (sizeof(Ir));
+	string = (Ir *) malloc (sizeof(char));
+	copia = (Ir *) malloc (sizeof(Ir));
 
-	// getchar();scanf("%[^\n]s", string->trajeto);
-	// getchar();scanf("%[^\n]s", data->data);
+	getchar();scanf("%[^\n]s", string->trajeto);
+	getchar();scanf("%[^\n]s", data->data);
 	
-	// aux = (Ir *) bsearch(string->trajeto, iroute, nregistros, sizeof(Ir) , comparaTrajeto);
-	// printf("1\n");
-	// if(aux == NULL)
-	// 	printf(REGISTRO_N_ENCONTRADO);
-	// else{
-	// 	aux_rrn = (Ip *) bsearch(aux->lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-	// 	if(aux_rrn == NULL)
-	// 		printf(REGISTRO_N_ENCONTRADO);
-	// 	printf("2\n");
-	// }
-	// memcpy(copia, aux, sizeof(Ir));
-	// printf("%s\n", copia->lista->pk);
-	// printf("3\n");		
-	// while(copia->lista != NULL){
-	// 	aux2 = (Isd *) bsearch(data, idate, nregistros, sizeof(Isd), comparadata);
-	// 	printf("4\n");
-	// 	if(aux2 == NULL)
-	// 		printf(REGISTRO_N_ENCONTRADO);
-	// 	//printf("%s\n", aux2->pk);
-	// 	else if(strcmp(copia->lista->pk, aux2->pk) == 0){
-	// 		printf("5\n");
-	// 		exibir_registro(aux_rrn->rrn);
 
-	// 	printf("podepa mano\n");
-	// 	}
-	// 	copia->lista = copia->lista->prox;
-	// 	printf("6\n");
-	// }
+	aux2 = (Ir *) bsearch(string->trajeto, iroute, ntraj, sizeof(Ir) , comparaTrajeto);
+	if(aux2 == NULL){
+		printf(REGISTRO_N_ENCONTRADO);
+	}
+	else{
+		aux_data = (Isd *) bsearch(data, idate, nregistros, sizeof(Isd) , comparadata);
+		if(aux_data == NULL){
+			printf(REGISTRO_N_ENCONTRADO);
+		}
+		else{
+			memcpy(copia, aux2, sizeof(Ir));
+			while(copia->lista != NULL){
+				if(strcmp(copia->lista->pk, aux_data->pk) == 0){
+					aux_rrn = (Ip *) bsearch(copia->lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
+				
+					if (aux_rrn != NULL && aux_rrn->rrn != -1){
+						ultima++;
+						exibir_registro(aux_rrn->rrn);
+
+					if(ultima <= i-1)
+						printf("\n");
+					}
+					else{
+						printf(REGISTRO_N_ENCONTRADO);
+					}
+				}
+				copia->lista = copia->lista->prox;
+				i++;
+			}
+		}
+	}
 }
 
-void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros){
-	Ip *aux_rrn;
+void listarLocalidadeDataHora(Ip* indice_primario, Ir* iroute, Isd* idate, Ist* itime, int ntraj, int nregistros, int nRemovidos){
+	Ip *aux_rrn2;
+	Isd *aux_rrn;
 	Ir *copia;
-	int flag[nregistros], primeira = 1;
+	Ip* aux = (Ip *) malloc(sizeof(Ip));
+	int flag[nregistros], primeira = 1, i = 0, h = 0, k = 0, ultima = 0, ultimaith = 0;
 
 	for(int i = 0; i < nregistros; i++)
 		flag[i] = 0;
 
-	copia = (Ir *) malloc (sizeof(char));
+	copia = (Ir *) malloc (sizeof(Ir) * MAX_REGISTROS);
 	
 	for (int j = 0; j < ntraj; j++){
-		copia[j].lista = iroute[j].lista;
+		i = 0;
+		copia[j] = iroute[j];
 		
 		while(copia[j].lista != NULL){
-			aux_rrn = (Ip *) bsearch(copia[j].lista->pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-
-			if (aux_rrn->rrn != -1){
-					aux_rrn = (Ip *) bsearch(idate[aux_rrn->rrn].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-
-					if(idate[aux_rrn->rrn+1].data != NULL)
-						if(strcmp(idate[aux_rrn->rrn].data, idate[aux_rrn->rrn+1].data) == 0)
-							for (int i = aux_rrn->rrn; i < nregistros; i++){
-								aux_rrn = (Ip *) bsearch(itime[i].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
-								if(aux_rrn != NULL){
-									exibir_registro(aux_rrn->rrn);
-								}
-							}
-					if(aux_rrn != NULL)
-						exibir_registro(aux_rrn->rrn);
-					else
-						printf(REGISTRO_N_ENCONTRADO);
-
-					if(j != ntraj)
-						printf("\n");
-			}
+			strcpy(aux[i].pk, copia[j].lista->pk);
 			copia[j].lista = copia[j].lista->prox;
+			i++;
 		}
+
+		if(j == (ntraj-1))
+			ultima = 1;
+
+		for(int k = 0; k < nregistros; k++) {
+			for(int h = 0; h < i; h++){
+				if(strcmp(aux[h].pk, idate[k].pk) == 0){
+					aux_rrn2 = (Ip *) bsearch(idate[k].pk, indice_primario, nregistros, sizeof(Ip), comparapk);
+				
+					if(aux_rrn2 != NULL){
+						if(ultima == 1){
+							ultimaith++;	
+						}
+						exibir_registro(aux_rrn2->rrn);	
+						if (ultimaith != i)
+							printf("\n");
+					}		
+				}
+			}
+		}
+	}
+}
+
+int alterar(Ip* indice_primario, int nregistros){
+	char pk[TAM_PRIMARY_KEY], vagas[TAM_VAGAS];
+
+	scanf("%s", pk);
+
+	Ip *aux;
+	aux = (Ip *) bsearch(pk, indice_primario, nregistros, sizeof(Ip) , comparapk);
+
+	if(aux == NULL){
+		printf(REGISTRO_N_ENCONTRADO);
+        return 0;
+    }
+	else{
+        do{
+       	getchar();scanf("%[^\n]s", vagas);
+        }while(checaNovaVaga(vagas) == 0);
+        
+        Carona a = recuperar_registro(aux->rrn);
+        
+        strcpy(a.vagas, vagas);
+
+		Ip *j = aux;
+
+		//ALTERA O ARQUIVO
+			char *p = ARQUIVO + (256 * j->rrn) + strlen(a.nome) + strlen(a.genero) + strlen(a.nascimento) +
+			strlen(a.celular) + strlen(a.veiculo) + strlen(a.placa) + strlen(a.placa) + strlen(a.trajeto) 
+			+ strlen(a.data) + strlen(a.hora) + strlen(a.valor) + 2;
+			*p = a.vagas[0];
+	}
+}
+
+int checaNovaVaga(char *vagas){
+	double a;
+	if (strlen(vagas) == 1){
+		a = atof(vagas);
+		if(a >= 0 && a <= 9)
+			return 1;
+	}
+	
+	printf(CAMPO_INVALIDO);
+	return 0;
+}
+
+int remover(Ip *indice_primario, int nregistros, int *nRemovidos){
+    Ip *a;
+	char pk[TAM_PRIMARY_KEY];
+
+	scanf("%[^\n]s", pk);
+	//printf("%s\n", pk);
+	a = (Ip*) bsearch(pk, indice_primario, nregistros, sizeof(Ip), comparapk2);
+   	if(!a || a->rrn == -1){
+   		printf(REGISTRO_N_ENCONTRADO);
+        return 0;
+   	}
+    else{
+       char *x = ARQUIVO + (256*a->rrn);
+        *x = '*';
+        *(x+1) = '|';
+        a->rrn = -1;
+        (*nRemovidos)++;
+
+        return 1;
+    }
+}
+
+void liberarEspaco(int *nregistros, int *ntraj, Ip* indice_primario, Ir* iroute, Is* idriver, Isd* idate, Ist* itime){
+	int i, flag = 0, flag2 = 0, x[MAX_REGISTROS], y = 0, z = 0, contremovidos = 0;
+    char* p;
+
+    //roda todo o arquivo
+    for (int i = 0; i < *nregistros; i++){
+        p = ARQUIVO + (256 * i);
+        
+        if(p[0] == '*'){
+            //para cada posicao seguinte, o atual recebe o proximo para "tapar" o buraco
+            strcpy(ARQUIVO+(256*i), p+256);
+
+            flag = 1;
+
+            contremovidos++;
+    	}
+	}
+
+	for(int i = 0; i < *nregistros; i++){
+		if(indice_primario[i].rrn == -1){
+			for(int j = 0; j < *ntraj; j++){
+				removerLista(&iroute[j].lista, indice_primario[i].pk);
+
+				if(iroute[j].lista == NULL){
+					x[z] = j;
+					z++;
+				}
+			}				
+			for(y = 0; y < z; y++){
+				for(int k = x[y]; k < *ntraj; k++){
+					strcpy(iroute[k].trajeto, iroute[k+1].trajeto);
+					iroute[k].lista = iroute[k+1].lista;
+				}
+				x[y+1]--;
+			}
+		}
+	}
+	(*nregistros) -= contremovidos;
+	(*ntraj) = 0;
+
+	recriaIndices(indice_primario, idriver, idate, itime, nregistros, iroute, ntraj);
+}
+
+void recriaIndices(Ip* indice_primario, Is* idriver, Isd* idate, Ist* itime, int * nregistros, Ir* iroute, int *ntraj){
+	 Carona j;
+
+	free(idriver);
+	free(idate);
+	free(itime);
+	liberar_iroute(iroute, ntraj);
+	free(indice_primario);
+
+	indice_primario = (Ip *)calloc(MAX_REGISTROS, sizeof(Ip));
+	if (!indice_primario){
+		perror(MEMORIA_INSUFICIENTE);
+		exit(1);
+	}
+
+    idriver = (Is *)calloc(MAX_REGISTROS, sizeof(Is));
+	if (!idriver){
+		perror(MEMORIA_INSUFICIENTE);
+		exit(1);
+	}
+
+    idate = (Isd *)calloc(MAX_REGISTROS, sizeof(Isd));
+	if (!idate){
+		perror(MEMORIA_INSUFICIENTE);
+		exit(1);
+	}
+
+    itime = (Ist *)calloc(MAX_REGISTROS, sizeof(Ist));
+	if (!itime){
+		perror(MEMORIA_INSUFICIENTE);
+		exit(1);
+	}
+
+    iroute = (Ir *) malloc (MAX_REGISTROS * sizeof(Ir));
+	if(!iroute){
+		perror(MEMORIA_INSUFICIENTE);
+		exit(1);
+	}
+
+    
+	criar_iprimary(indice_primario, nregistros);
+	criar_idriver(idriver, nregistros) ;
+	criar_idate(idate, nregistros);
+	criar_itime(itime, nregistros);
+	criar_iroute(iroute, nregistros, ntraj);
+}
+
+void liberar_iroute(Ir* iroute, int *ntraj){
+	ll* a, *x;
+
+	for(int i=0; i< *ntraj; i++){
+		a = iroute[i].lista;
+		while(a != NULL){
+			x = a;
+			a = a->prox;
+			free(x);
+		}
+		free(iroute[i].trajeto);
 	}
 }
